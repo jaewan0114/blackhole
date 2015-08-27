@@ -1,6 +1,13 @@
 # siomiz/blackhole
 
-`ip route add blackhole` any IP address that failed SSH login.
+`ip route add blackhole` any IP address that failed SSH login and left a journal entry like:
+
+    Invalid user .. from ..
+    User .. from .. not allowed ..
+    Connection closed by .. .. [preauth]
+    Received disconnect from .. .. [preauth]
+
+## Notes
 
 * `/var/log/journal` is the default location of journal files on CoreOS; change as neccesary.
 * `--net=host --privileged` is required for iptables from inside container to work
@@ -11,7 +18,7 @@
     Description=Blackhole
     After=docker.service
     Requires=docker.service
-
+    
     [Service]
     TimeoutStartSec=0
     ExecStartPre=-/usr/bin/docker kill blackhole
@@ -23,7 +30,7 @@
       --net=host \
       --privileged \
       -v /var/log/journal:/var/log/journal:ro \
-      -v /usr/bin/journalctl:/usr/bin/journalctl \
+      -v /usr/bin/journalctl:/usr/bin/journalctl:ro \
       -v /lib64:/usr/local/lib64:ro \
       siomiz/blackhole
     
