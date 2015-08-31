@@ -7,6 +7,10 @@
     Connection closed by .. .. [preauth]
     Received disconnect from .. .. [preauth]
 
+Individual IP addresses will be immediately blocked.
+
+ISP Subnet containing the IP address (according to corresponding WHOIS record) will be blocked on 3rd strike.
+
 ## Notes
 
 * `/var/log/journal` is the default location of journal files on CoreOS; change as neccesary.
