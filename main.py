@@ -113,13 +113,16 @@ class Block(object):
     def engage(self):
         self.iproute(['add', 'blackhole', self.subnet.cidr])
         self.engaged = True
-        print '    %s' % self
+        print '      %s' % self
 
     def iproute(self, cmd=[]):
-        cmd = ['/usr/sbin/ip', 'route'] + cmd
+        cmd = ['ip', 'route'] + cmd
         print '    calling: %s' % ' '.join(cmd)
-        with open(os.devnull, 'wb') as devnull:
-            subprocess.call(cmd, stderr=devnull)
+        try:
+            with open(os.devnull, 'wb') as devnull:
+                subprocess.call(cmd, stderr=devnull)
+        except Exception, e:
+            print e
 
 
 def blackhole(ipaddr):
@@ -152,29 +155,31 @@ def blackhole(ipaddr):
         if b.subnet.contains(single) and b.engaged:
             skip = True
             print '  %s contains %s' % (b, single)
+        elif b.subnet == single and b.engaged:
+            skip = True
+            print '  %s exists' % b
 
     if not skip:
         state.append(Block(single))
 
-    if subnets:
-        s = min(subnets)
-        nb = next((ib for ib in state if ib.subnet == s), None)
-        if nb:
-            nb.strike()
-            if nb.engaged:
-                for b in state:
-                    if b != nb and nb.subnet.contains(b.subnet):
-                        print '  consolidating %s' % b
-                        state.remove(b)
-
-        else:
-            state.append(Block(s, left=3))
+        if subnets:
+            s = min(subnets)
+            nb = next((ib for ib in state if ib.subnet == s), None)
+            if nb:
+                nb.strike()
+                if nb.engaged:
+                    for b in state:
+                        if b != nb and nb.subnet.contains(b.subnet):
+                            print '  consolidating %s' % b
+                            state.remove(b)
+            else:
+                state.append(Block(s, left=3))
 
 
 def tail_forever():
     try:
         p = subprocess.Popen(
-            ["/usr/bin/journalctl", "-D", "/var/log/journal", "_COMM=sshd", "-o", "cat", "-f"],
+            ["/usr/bin/journalctl", "-D", "/var/log/journal", "_COMM=sshd", "-o", "cat", "-f", "-n", "100"],
             stdout=subprocess.PIPE)
         while True:
             line = p.stdout.readline()
@@ -206,6 +211,16 @@ try:
             print
             print ipaddr
             blackhole(ipaddr)
+except Exception, e:
+    print e
 finally:
+    print
+    print 'cleaning up'
+    while True:
+        try:
+            b = state.pop()
+            del b
+        except:
+            break
     th.join()
 
