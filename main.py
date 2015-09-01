@@ -119,7 +119,7 @@ class Block(object):
         cmd = ['/usr/sbin/ip', 'route'] + cmd
         print '    calling: %s' % ' '.join(cmd)
         with open(os.devnull, 'wb') as devnull:
-            subprocess.call(["/usr/sbin/ip", "route"] + cmd, stderr=devnull)
+            subprocess.call(cmd, stderr=devnull)
 
 
 def blackhole(ipaddr):
