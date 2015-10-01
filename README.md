@@ -4,7 +4,6 @@
 
     Invalid user .. from ..
     User .. from .. not allowed ..
-    Connection closed by .. .. [preauth]
     Received disconnect from .. .. [preauth]
 
 Individual IP addresses will be immediately blocked.
