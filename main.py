@@ -125,19 +125,22 @@ class Block(object):
             print e
 
 
-def blackhole(ipaddr):
-    global state
-
+def whois(refer, ipaddr):
     lines = ''
+    new_refer = False
+    subnets = []
+
     try:
-        lines = subprocess.check_output(["/usr/bin/whois", ipaddr], stderr=subprocess.STDOUT)
+        lines = subprocess.check_output(['/usr/bin/whois', '-h', refer, ipaddr], stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError, e:
         lines = e.output
 
-    subnets = []
-
     for line in lines.split('\n'):
         line = line.lower()
+        if line.startswith('refer:'):
+            m = re.findall(r'[^:\t\ ]+$', line)
+            if m:
+                new_refer = m[0]
         if line.startswith('inetnum:') or line.startswith('cidr'):
             m = re.findall(r'[\d\.]+\/\d{1,2}', line)
             if m:
@@ -147,6 +150,17 @@ def blackhole(ipaddr):
                 m = re.findall(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', line)
                 if len(m) == 2:
                     subnets.append(Subnet.from_range(m[0], m[1]))
+
+    if new_refer:
+        return whois(new_refer, ipaddr)
+    else:
+        return subnets
+
+
+def blackhole(ipaddr):
+    global state
+
+    subnets = whois('whois.iana.org', ipaddr)
 
     single = Subnet.from_ipaddr(ipaddr)
     skip = False
