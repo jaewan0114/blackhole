@@ -218,7 +218,8 @@ try:
         line = tailq.get()
         m = re.match('Invalid user .* from ([0-9\.]*)', line) \
             or re.match('User .* from ([0-9\.]*) not allowed', line) \
-            or re.match('Received disconnect from ([0-9\.]*):.*\[preauth\]', line)
+            or re.match('Received disconnect from ([0-9\.]*):.*\[preauth\]', line) \
+            or re.match('Connection closed by ([0-9\.]*) port [0-9]+ \[preauth\]', line)
         if m:
             ipaddr = m.group(1)
             print
