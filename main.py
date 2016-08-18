@@ -219,7 +219,8 @@ try:
         m = re.match('Invalid user .* from ([0-9\.]*)', line) \
             or re.match('User .* from ([0-9\.]*) not allowed', line) \
             or re.match('Received disconnect from ([0-9\.]*):.*\[preauth\]', line) \
-            or re.match('Connection closed by ([0-9\.]*) port [0-9]+ \[preauth\]', line)
+            or re.match('Failed password for .* from ([0-9\.]*) port [0-9]+ ssh2', line) \
+            or re.match('Did not receive identification string from ([0-9\.]*)', line)
         if m:
             ipaddr = m.group(1)
             print
