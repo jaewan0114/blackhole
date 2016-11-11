@@ -13,7 +13,7 @@ ISP Subnet containing the IP address (according to corresponding WHOIS record) w
 ## Notes
 
 * `/var/log/journal` is the default location of journal files on CoreOS; change as neccesary.
-* `--net=host --privileged` is required for iptables from inside container to work
+* `--net=host --cap-add=NET_ADMIN` is required for iptables from inside container to work
 
 ## systemd Service file example
 
@@ -31,11 +31,15 @@ ISP Subnet containing the IP address (according to corresponding WHOIS record) w
     /usr/bin/docker run \
       --name blackhole \
       --net=host \
-      --privileged \
+      --cap-add=NET_ADMIN \
       -v /var/log/journal:/var/log/journal:ro \
       -v /usr/bin/journalctl:/usr/bin/journalctl:ro \
       -v /lib64:/usr/local/lib64:ro \
+      -v /lib64/libgcrypt.so.20:/lib64/libgcrypt.so.20:ro \
+      -v /usr/lib64/systemd/libsystemd-shared-231.so:/lib64/libsystemd-shared-231.so:ro \
+      -v /usr/lib64/libseccomp.so.2:/lib64/libseccomp.so.2:ro \
       siomiz/blackhole
+    ExecStop=/usr/bin/docker stop blackhole
     
     [Install]
     WantedBy=multi-user.target
