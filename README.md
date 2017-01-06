@@ -12,10 +12,10 @@ ISP Subnet containing the IP address (according to corresponding WHOIS record) w
 
 ## Notes
 
-* `/var/log/journal` is the default location of journal files on CoreOS; change as neccesary.
+* `/var/log/journal` is the default location of journal files on CoreOS / Container Linux; change as neccesary.
 * `--net=host --cap-add=NET_ADMIN` is required for iptables from inside container to work
 
-## systemd Service file example
+## systemd Service file example (working as of Container Linux 1235.4.0)
 
     [Unit]
     Description=Blackhole
@@ -35,7 +35,8 @@ ISP Subnet containing the IP address (according to corresponding WHOIS record) w
       -v /var/log/journal:/var/log/journal:ro \
       -v /usr/bin/journalctl:/usr/bin/journalctl:ro \
       -v /lib64:/usr/local/lib64:ro \
-      -v /lib64/libgcrypt.so.20:/lib64/libgcrypt.so.20:ro \
+      -v /lib64/libgcrypt.so.20:/usr/lib64/libgcrypt.so.20:ro \
+      -v /lib64/libgpg-error.so.0:/usr/lib64/libgpg-error.so.0:ro \
       -v /usr/lib64/systemd/libsystemd-shared-231.so:/lib64/libsystemd-shared-231.so:ro \
       -v /usr/lib64/libseccomp.so.2:/lib64/libseccomp.so.2:ro \
       siomiz/blackhole
